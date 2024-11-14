@@ -2,13 +2,14 @@ package edu.grinnell.csc207.util;
 
 import java.io.PrintWriter;
 import java.util.Iterator;
+import java.util.Stack;
 
 /**
  * Simple binary trees.
  *
  * @author Samuel A. Rebelsky
- * @author Your Name Here
- * @author Your Name Here
+ * @author David William Stroud
+ * @author Sheilla Muligande
  *
  * @param <T>
  *   The type of value stored in the tree.
@@ -57,6 +58,53 @@ public class BinaryTree<T> implements Iterable<T> {
   // +---------+
 
   /**
+   * Prints out elements in approximately the same order as
+   * given to the constructor.
+   * @param pen The PrintWriter to use for output.
+   */
+  public void elements01(PrintWriter pen) {
+    this.root.elements01(pen);
+    pen.print("\n");
+  } // elements01(PrintWriter)
+
+
+  /**
+   * Prints out elements via a depth-first, left-to-right, in-order
+   * traversal.
+   * @param pen The PrintWriter to use for output.
+   */
+  public void elements02(PrintWriter pen) {
+    this.elements01(pen);
+  } // elements02(PrintWriter)
+
+  /**
+   * Print all of the elements in some order or other.
+   * 
+   * Note: We are trying to avoid recursion.
+   */
+  @SuppressWarnings({ "unchecked" })
+  public void print(PrintWriter pen) {
+    BinaryTreeNode<T>[] nodes = (BinaryTreeNode<T>[]) java.lang.reflect.Array.newInstance(this.root.getClass(), this.size);
+    int curIndex = 0;
+    nodes[0] = this.root;
+    while(curIndex < nodes.length){
+      int i, j;
+      for(i = curIndex; i < nodes.length && nodes[i] != null; i++){
+        pen.print(nodes[i].value + " ");
+      } // for
+      for(j = curIndex, curIndex = i; j < curIndex; j++){
+        if (nodes[j].left != null) {
+          nodes[i++] = nodes[j].left;
+        } // if
+        if (nodes[j].right != null) {
+          nodes[i++] = nodes[j].right;
+        } // if
+      } // for
+    } // while
+    pen.print("\n");
+  } // print(PrintWriter)
+
+  /**
    * Dump the tree to some output location.
    *
    * @param pen
@@ -72,16 +120,23 @@ public class BinaryTree<T> implements Iterable<T> {
    * @return the iterator.
    */
   public Iterator<T> iterator() {
-    return new Iterator<T>() {
+    Stack<BinaryTreeNode<T>> remaining = new Stack<BinaryTreeNode<T>>();
+    remaining.push(this.root);
 
+    return new Iterator<T>() {
       public boolean hasNext() {
-        // STUB
-        return false;
+        return !remaining.isEmpty();
       } // hasNext()
 
       public T next() {
-        // STUB
-        return null;
+        BinaryTreeNode<T> node = remaining.pop();
+        if (node.left != null) {
+          remaining.push(node.left);
+        } // if
+        if (node.right != null) {
+          remaining.push(node.right);
+        } // if
+        return node.value;
       } // next()
     }; // new Iterator()
   } // iterator()
